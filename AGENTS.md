@@ -9,14 +9,9 @@ Stack-chan voice avatar running on M5Stack CoreS3.
 - `mcp-server/` contains a Python MCP server that lets clients control
   Stack-chan over HTTP.
 - `faces/` and `firmware/data/` contain the PNG face assets used by the device.
-- `start-http.sh` starts the MCP HTTP server and the public tunnel used by
-  remote clients.
 
 ## Important Rules
 
-- Do not read or use any `CLAUDE.md` files. They are for a different assistant.
-- Do not call memory, identity, or introspection MCP tools such as
-  `imprint-memory`, `memory_search`, `breath`, or similar tools.
 - Be careful with live-device endpoints. `GET /audio` consumes and clears the
   current recording buffer on the device.
 - Do not overwrite local secrets or Wi-Fi settings in `firmware/src/config.h`.
@@ -98,12 +93,8 @@ Important environment variables:
 - `AUDIO_SERVE_PORT`: local HTTP port for generated WAV files.
 - `TTS_ENGINE`: `fish-audio` or `edge-tts`.
 
-For local HTTP MCP mode:
-
-```sh
-./start-http.sh
-./start-http.sh stop
-```
+For local HTTP MCP mode, run `python mcp-server/server.py --http --port 8002`
+(stdio mode is the default and needs no port).
 
 ## Live Device Checks
 
@@ -141,12 +132,3 @@ recording.
   links.
 - If the issue changes established project behavior, update
   `docs/development-guide.md` as well so the general guide stays current.
-
-
-<claude-mem-context>
-# Memory Context
-
-# [stackchan] recent context, 2026-05-16 8:56pm GMT+9
-
-No previous sessions found.
-</claude-mem-context>

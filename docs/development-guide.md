@@ -14,10 +14,7 @@ push-based Stack-chan voice avatar in this repository.
 - `faces/`: source or companion face assets.
 - `mcp-server/server.py`: Python MCP server that exposes Stack-chan tools and
   talks to the device over HTTP.
-- `start-http.sh`: helper script that starts the MCP server in Streamable HTTP
-  mode and launches the public Cloudflare tunnel.
 
-Do not use `CLAUDE.md` files for this project. They belong to another assistant.
 Do not overwrite `firmware/src/config.h`; it may contain local secrets.
 
 ## Firmware Overview

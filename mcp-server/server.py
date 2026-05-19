@@ -24,14 +24,14 @@ import requests
 from mcp.server.fastmcp import FastMCP, Image
 
 # ── Configuration ──────────────────────────────────────────
-STACKCHAN_IP = os.environ.get("STACKCHAN_IP", "10.83.20.187")
+STACKCHAN_IP = os.environ.get("STACKCHAN_IP", "192.168.1.100")  # set via env
 STACKCHAN_PORT = int(os.environ.get("STACKCHAN_PORT", 80))
-MAC_IP = os.environ.get("MAC_IP", "10.83.20.149")
+MAC_IP = os.environ.get("MAC_IP", "192.168.1.10")  # set via env
 AUDIO_SERVE_PORT = int(os.environ.get("AUDIO_SERVE_PORT", 5060))
 
 # TTS settings
 TTS_ENGINE = os.environ.get("TTS_ENGINE", "fish-audio")  # "edge-tts" or "fish-audio"
-EDGE_TTS_BIN = os.environ.get("EDGE_TTS_BIN", "/Users/Isa/Kokoro-TTS-Local/venv/bin/edge-tts")
+EDGE_TTS_BIN = os.environ.get("EDGE_TTS_BIN", "edge-tts")  # on PATH, or set via env
 FISH_AUDIO_KEY = os.environ.get("FISH_AUDIO_KEY", "")
 FISH_AUDIO_MODEL_ZH = os.environ.get("FISH_AUDIO_MODEL_ZH", "411d04608a3a498192e16724689e7993")  # 夏以昼
 FISH_AUDIO_MODEL_EN = os.environ.get("FISH_AUDIO_MODEL_EN", "a1e3e14176b0496c84e6009d672c23f8")  # Nick Valentine
