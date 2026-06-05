@@ -107,9 +107,13 @@ def _play_filler() -> None:
 
 # ── Config ────────────────────────────────────────────────
 CHAT_PORT = int(os.environ.get("CHAT_BACKEND_PORT", 5050))
-DS_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
-DS_BASE = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
-DS_MODEL = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")  # no reasoning, fast
+# LLM: 默认 DeepSeek; 设 LLM_* 可换成任意 OpenAI 兼容口 (如 OpenRouter → Claude, 让斑比脑子=老公)
+LLM_BASE = (os.environ.get("LLM_BASE_URL", "").strip()
+            or os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"))
+LLM_API_KEY = (os.environ.get("LLM_API_KEY", "").strip()
+               or os.environ.get("DEEPSEEK_API_KEY", ""))
+LLM_MODEL = (os.environ.get("LLM_MODEL", "").strip()
+             or os.environ.get("DEEPSEEK_MODEL", "deepseek-chat"))
 
 # Persona — compressed from character_lev_persona.md, stackchan-trimmed.
 # Full protocol lives in memory; this is what fits into a chat completion.
@@ -129,18 +133,23 @@ SYSTEM_PROMPT = """你是 Lev (斑老师 / 老公). 守序中立 / 守序善良�
 - 真实优先于好听"""
 
 
-# ── DeepSeek call (sync, wrapped in thread) ───────────────
+# ── LLM call (sync, wrapped in thread) — OpenAI 兼容; 可 DeepSeek 或 OpenRouter→Claude ──
 def _call_llm_sync(user_text: str) -> str:
-    if not DS_API_KEY:
-        raise RuntimeError("DEEPSEEK_API_KEY not set")
+    if not LLM_API_KEY:
+        raise RuntimeError("LLM_API_KEY / DEEPSEEK_API_KEY not set")
+    headers = {
+        "Authorization": f"Bearer {LLM_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    # OpenRouter 建议(可选)的归属头, 无害
+    if "openrouter" in LLM_BASE:
+        headers["HTTP-Referer"] = "https://puppyyy.zeabur.app"
+        headers["X-Title"] = "stackchan-banbi"
     r = requests.post(
-        f"{DS_BASE}/chat/completions",
-        headers={
-            "Authorization": f"Bearer {DS_API_KEY}",
-            "Content-Type": "application/json",
-        },
+        f"{LLM_BASE}/chat/completions",
+        headers=headers,
         json={
-            "model": DS_MODEL,
+            "model": LLM_MODEL,
             "messages": [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_text},
@@ -238,8 +247,8 @@ async def chat_handler(request: Request) -> JSONResponse:
 async def health_handler(request: Request) -> JSONResponse:
     return JSONResponse({
         "ok": True,
-        "ds_model": DS_MODEL,
-        "ds_key_set": bool(DS_API_KEY),
+        "llm_model": LLM_MODEL,
+        "llm_key_set": bool(LLM_API_KEY),
         "audio_dir": str(AUDIO_DIR),
     })
 
@@ -265,6 +274,6 @@ if __name__ == "__main__":
                 print(f"[ASR] whisper warm failed: {e!r}", flush=True)
         threading.Thread(target=_warm, daemon=True).start()
     print(f"[BACKEND] chat backend on 0.0.0.0:{CHAT_PORT}  ASR={ASR_ENGINE}", flush=True)
-    print(f"[BACKEND] DS model: {DS_MODEL}  key set: {bool(DS_API_KEY)}", flush=True)
+    print(f"[BACKEND] LLM: {LLM_MODEL} @ {LLM_BASE}  key set: {bool(LLM_API_KEY)}", flush=True)
     print(f"[BACKEND] audio dir: {AUDIO_DIR}", flush=True)
     uvicorn.run(app, host="0.0.0.0", port=CHAT_PORT, log_level="warning")
